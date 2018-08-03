@@ -1,6 +1,5 @@
 from time import sleep
 from serial import Serial
-from LX_16a import LX_16a
 
 Serial_Con = Serial("/dev/ttyUSB0", baudrate=115200, timeout=0.001)
 Serial_Con.setDTR(1)
@@ -180,89 +179,47 @@ def ReadPos(id):
         sleep(0.1)
 
 print("Starting.")
-
-lx = LX_16a()
-sleep(0.5)
-lx.write_position(1, 100, 0)
-sleep(0.5)
-lx.write_position(1, 100, 500)
-exit()
-
-while(1):
-    print(ReadPos(1))
-# sleep(1)
-# print(".")
-# sleep(1)
-# print(".")
-# sleep(1)
-# print(".")
-# sleep(1)
-# print(".")
-# sleep(1)
-# print(".")
-
-moveServo(1,100,0)
 sleep(1)
 print(".")
-moveServo(1,100,500)
 sleep(1)
 print(".")
-moveServo(1,100,0)
 sleep(1)
 print(".")
-
-
-moveServo(1,5000,0)
 sleep(1)
 print(".")
-moveServo(1,5000,500)
 sleep(1)
 print(".")
-moveServo(1,5000,0)
-sleep(1)
-print(".")
-moveServo(1,5000,500)
-exit()
 
 moveServo(1,500,0)
+moveServo(2,500,0)
+sleep(5)
+print("ID:1 "+str(ReadTemp(1))+"*C")
 sleep(1)
-print(".")
-moveServo(1,500,500)
-moveServo(1,500,0)
+print("ID:2 "+str(ReadTemp(2))+"*C")
 sleep(1)
-print(".")
-exit()
-
-moveServo(1,500,500)
-# moveServo(2,500,0)
-# sleep(5)
-print "ID:1 "+str(ReadTemp(1))+"*C"
+print("ID:1 "+str(ReadVin(1))+"*V")
 sleep(1)
-# print "ID:2 "+str(ReadTemp(2))+"*C"
-# sleep(1)
-print "ID:1 "+str(ReadVin(1))+"*V"
+print("ID:2 "+str(ReadVin(2))+"*V")
 sleep(1)
-# print "ID:2 "+str(ReadVin(2))+"*V"
-# sleep(1)
-print "ID:1 "+str(ReadPos(1))+"*P"
+print("ID:1 "+str(ReadPos(1))+"*P")
 sleep(1)
-# print "ID:2 "+str(ReadPos(2))+"*P"
-# sleep(5)
+print("ID:2 "+str(ReadPos(2))+"*P")
+sleep(5)
 
 moveServo(1,500,0)
-# moveServo(2,500,0)
+moveServo(2,500,0)
 sleep(1)
 moveServo(1,500,100)
-# moveServo(2,500,100)
+moveServo(2,500,100)
 sleep(1)
 moveServo(1,500,200)
-# moveServo(2,500,200)
+moveServo(2,500,200)
 sleep(1)
 moveServo(1,500,300)
-# moveServo(2,500,300)
+moveServo(2,500,300)
 sleep(1)
 moveServo(1,500,400)
-# moveServo(2,500,400)
+moveServo(2,500,400)
 sleep(1)
 moveServo(1,500,500)
 moveServo(2,500,500)
@@ -282,6 +239,6 @@ sleep(1)
 moveServo(1,1000,850)
 moveServo(2,1000,850)
 sleep(2)
-print "ID:1 "+str(ReadPos(1))+"*P"
+print("ID:1 "+str(ReadPos(1))+"*P")
 sleep(1)
-print "ID:2 "+str(ReadPos(2))+"*P"
+print("ID:2 "+str(ReadPos(2))+"*P")
