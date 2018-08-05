@@ -135,6 +135,7 @@ def ReadVin(id):
         count+=1
         sleep(0.1)
 
+
 def ReadPos(id):
     #print("Read Temp ID:"+str(id)+"-------------")
     AX_READ_DATA=3
@@ -182,10 +183,14 @@ def ReadPos(id):
 print("Starting.")
 
 lx = LX_16a()
-sleep(0.5)
-lx.write_position(1, 100, 0)
-sleep(0.5)
-lx.write_position(1, 100, 500)
+lx.write_position(2, 100, 0)
+lx.write_position(3, 100, 1000)
+sleep(1)
+lx.write_position(2, 100, 1000)
+lx.write_position(3, 100, 0)
+
+# print("BROADCAST")
+# print(lx.ping_id())
 exit()
 
 while(1):
