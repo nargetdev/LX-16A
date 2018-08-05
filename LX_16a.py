@@ -100,14 +100,16 @@ class LX_16a():
     def write_id(self, id, new_id):
         self.send_command(id, SERVO_ID_WRITE, [new_id])
 
-    def ping_id(self):
-        self.send_command(BROADCAST, SERVO_ID_READ, [])
+    def ping_id(self, id=None):
+        if id:
+            self.send_command(id, SERVO_ID_READ, [])
+        else:
+            self.send_command(BROADCAST, SERVO_ID_READ, [])
         self.Serial_Con.flushInput()
         sleep(TX_DELAY_TIME)
 
         count=0
-        sleep(0.1)
-        while count<200:
+        while count<16:
             reply=self.Serial_Con.read(1)
             if reply != '':
                 for x in range(0, 7):
@@ -116,13 +118,13 @@ class LX_16a():
                     if x == 5:
                         #print reply.encode("hex")
                         #print str(int(reply.encode("hex"),16))+"*C"
-                        print("===")
+                        # print("===")
                         id = int(reply.encode("hex"),16)
-                        print(int(reply.encode("hex"),16))
-                        print("===")
+                        # print(int(reply.encode("hex"),16))
+                        # print("===")
                     reply=self.Serial_Con.read(1)
                 count=200
                 #print("-----------")
                 return id
             count+=1
-            sleep(0.1)
+            # sleep(0.1)

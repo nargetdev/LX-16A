@@ -183,14 +183,17 @@ def ReadPos(id):
 print("Starting.")
 
 lx = LX_16a()
-lx.write_position(2, 100, 0)
-lx.write_position(3, 100, 1000)
-sleep(1)
-lx.write_position(2, 100, 1000)
-lx.write_position(3, 100, 0)
+# lx.write_position(2, 100, 0)
+# lx.write_position(3, 100, 1000)
+# sleep(1)
+# lx.write_position(2, 100, 1000)
+# lx.write_position(3, 100, 0)
 
-# print("BROADCAST")
-# print(lx.ping_id())
+print("BROADCAST")
+print(lx.ping_id())
+
+for i in range(1, 32):
+    print("i: " + str(i) + " Present? " + str(lx.ping_id(i) ) )
 exit()
 
 while(1):
