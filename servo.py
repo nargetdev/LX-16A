@@ -186,18 +186,21 @@ lx = LX_16a()
 # lx.write_position(2, 100, 0)
 # lx.write_position(3, 100, 1000)
 # sleep(1)
-# lx.write_position(2, 100, 1000)
-# lx.write_position(3, 100, 0)
 
 print("BROADCAST")
 print(lx.ping_id())
 
 for i in range(1, 32):
     print("i: " + str(i) + " Present? " + str(lx.ping_id(i) ) )
-exit()
 
 while(1):
-    print(ReadPos(1))
+    print("write positions")
+    lx.write_position(2, 100, 1000)
+    lx.write_position(3, 100, 0)
+    sleep(1)
+    lx.write_position(3, 100, 1000)
+    lx.write_position(2, 100, 0)
+    sleep(1)
 # sleep(1)
 # print(".")
 # sleep(1)
