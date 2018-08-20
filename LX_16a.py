@@ -1,5 +1,9 @@
 from time import sleep
 from serial import Serial
+import json
+import signal
+from shutil import copyfile
+
 
 dictErrors = {  1 : "Input Voltage",
                 2 : "Angle Limit",
@@ -40,6 +44,9 @@ SERVO_LED_ERROR_WRITE=[35, 4]
 SERVO_LED_ERROR_READ=[36, 3]
 
 
+SCAN_RANGE=16
+
+
 
 AX_START=0x55
 BROADCAST=0xFE
@@ -49,16 +56,23 @@ TX_DELAY_TIME = 0.001
 class LX_16a():
 
     Serial_Con = None
+    registered_ids = {}
+    non_volatile_id_counter = None # this variable will hold the next *available* id for assignment
 
     def __init__(self):
         print("trying to connect")
         try:
-            self.Serial_Con = Serial("/dev/ttyUSB0", baudrate=115200, timeout=0.001)
+            self.Serial_Con = Serial("/dev/ttyUSB1", baudrate=115200, timeout=0.001)
             self.Serial_Con.setDTR(1)
         except Exception as e:
             print(e)
             print("failed to connect")
         print("initialized")
+        print("loading non_volatile_id_counter")
+        with open('.id_counter', 'r') as f:
+            self.non_volatile_id_counter = json.load(f)
+        print(self.non_volatile_id_counter)
+
 
     def checksum(self, id, cmd, params):
         LENGTH = cmd[1]
@@ -97,7 +111,7 @@ class LX_16a():
         self.send_command(id, SERVO_MOVE_TIME_WRITE, [p[0], p[1], s[0], s[1]])
         return True
 
-    def write_id(self, id, new_id):
+    def write_id(self, new_id, id=1):
         self.send_command(id, SERVO_ID_WRITE, [new_id])
 
     def ping_id(self, id=None):
@@ -128,3 +142,27 @@ class LX_16a():
                 return id
             count+=1
             # sleep(0.1)
+
+    def check_and_allocate(self):
+        print("NEXT QUEUED: " + str(self.non_volatile_id_counter))
+        print("checking 1")
+        if self.ping_id(1) == 1:
+            print("found 1 needs reallocate")
+            print("allocating id: " + str(self.non_volatile_id_counter))
+            self.write_id(self.non_volatile_id_counter)
+            self.non_volatile_id_counter += 1
+            print("writing next available id to '.id_counter': " + str(self.non_volatile_id_counter))
+            with open('.id_counter.tmp', 'w+') as f:
+                json.dumps(str(self.non_volatile_id_counter), f)
+
+            copyfile('.id_counter.tmp', '.id_counter')
+        else:
+            print("one not found, doing nothing")
+
+        print("ids on the bus now: ")
+        self.ping_scan()
+
+    def ping_scan(self):
+        for i in range(1, SCAN_RANGE):
+            print("i: " + str(i) + " Present? " + str(self.ping_id(i) ) )
+                
