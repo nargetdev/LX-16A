@@ -62,7 +62,7 @@ class LX_16a():
     def __init__(self):
         print("trying to connect")
         try:
-            self.Serial_Con = Serial("/dev/ttyUSB1", baudrate=115200, timeout=0.001)
+            self.Serial_Con = Serial("/dev/ttyUSB0", baudrate=115200, timeout=0.001)
             self.Serial_Con.setDTR(1)
         except Exception as e:
             print(e)
@@ -166,3 +166,25 @@ class LX_16a():
         for i in range(1, SCAN_RANGE):
             print("i: " + str(i) + " Present? " + str(self.ping_id(i) ) )
                 
+    def wiggle(self, id):
+        WIGGLE_NUM = 2
+        sleepytime = .1
+        for i in range(1, WIGGLE_NUM):
+            # print("wiggling id " + str(id))
+            self.write_position(id, 50, 0)
+            sleep(sleepytime)
+            self.write_position(id, 50, 100)
+            sleep(sleepytime)
+                
+    def increment_position(self, id):
+        WIGGLE_NUM = 2
+        sleepytime = .1
+        for i in range(1, WIGGLE_NUM):
+            # print("wiggling id " + str(id))
+            self.write_position(id, 50, 0)
+            sleep(sleepytime)
+            self.write_position(id, 50, 100)
+            sleep(sleepytime)
+                
+
+
