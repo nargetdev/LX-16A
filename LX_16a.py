@@ -96,6 +96,35 @@ class LX_16a():
         self.Serial_Con.write(outData)
         sleep(TX_DELAY_TIME)
 
+
+    def read_pos(self, id):
+        #read command
+        self.send_command(id, SERVO_POS_READ, [])
+
+        # get the response
+        count = 0
+        while count<200:
+            reply=self.Serial_Con.read(1)
+            if reply != '':
+                for x in range(0, 8):
+                    #print reply.encode("hex"),
+                    #print str(int(reply.encode("hex"),16))+""
+                    if x == 5:
+                        #print reply.encode("hex")
+                        #print str(int(reply.encode("hex"),16))+"*C"
+                        pos1=reply.encode("hex")
+                    if x == 6:
+                        #print reply.encode("hex")
+                        #print str(int(reply.encode("hex"),16))+"*C"
+                        pos2=int(reply.encode("hex")+pos1,16)
+                    reply=self.Serial_Con.read(1)
+                count=200
+                #print("-----------")
+                return pos2
+            count+=1
+            sleep(0.1)
+
+
     def write_position(self, id, speed, position):
         if position < 0:
             position = 0
@@ -177,14 +206,18 @@ class LX_16a():
             sleep(sleepytime)
                 
     def increment_position(self, id):
-        WIGGLE_NUM = 2
-        sleepytime = .1
-        for i in range(1, WIGGLE_NUM):
-            # print("wiggling id " + str(id))
-            self.write_position(id, 50, 0)
-            sleep(sleepytime)
-            self.write_position(id, 50, 100)
-            sleep(sleepytime)
+        cur_pos = self.read_pos(id)
+        cmd_pos = cur_pos + 100
+        if cmd_pos > 1023:
+            cmd_pos = 1023
+        self.write_position(id, 100, cmd_pos)
+
+    def decrement_position(self, id):
+        cur_pos = self.read_pos(id)
+        cmd_pos = cur_pos - 100
+        if cmd_pos < 0:
+            cmd_pos = 0
+        self.write_position(id, 100, cmd_pos)
                 
 
 

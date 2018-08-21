@@ -44,6 +44,8 @@ try:
         char = screen.getch()
         if char == ord('q'):
             break
+        if char == ord('r'):
+            screen.addstr(0, 0, str(lx.read_pos(get_id(0))))
         elif char == curses.KEY_RIGHT:
             # print doesn't work with curses, use addstr instead
             screen.addstr(0, 0, 'right')
@@ -55,8 +57,10 @@ try:
             lx.wiggle(sel_id)
         elif char == curses.KEY_UP:
             up_counter += 1
+            lx.increment_position(get_id(0))
             screen.addstr(0, 0, 'up   ' + str(up_counter))       
         elif char == curses.KEY_DOWN:
+            lx.decrement_position(get_id(0))
             screen.addstr(0, 0, 'down ')
 
 finally:
