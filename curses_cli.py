@@ -39,21 +39,39 @@ def get_id(rotate):
     return ids[id_idx]
  
 up_counter = 0
+torque_enable_toggle = 1
 try:
+    screen.addstr(0, 0, 'Hello Larry')
     while True:
         char = screen.getch()
         if char == ord('q'):
             break
         if char == ord('r'):
             screen.addstr(0, 0, str(lx.read_pos(get_id(0))))
+        elif char == ord('j'):
+            lx.wheel_mode(get_id(0), 0xe0)
+        elif char == ord('k'):
+            lx.wheel_mode(get_id(0), 0xffff - 0xff)
+        elif char == ord('h'):
+            lx.position_mode(get_id(0))
+        elif char == ord('t'):
+            lx.torque_enable(get_id(0), torque_enable_toggle)
+            if (torque_enable_toggle):
+                screen.addstr(0, 0, "Torque Enabled!!")
+            else:
+                screen.addstr(0, 0, "Torque Disabled!!")
+            torque_enable_toggle = not torque_enable_toggle
+
         elif char == curses.KEY_RIGHT:
             # print doesn't work with curses, use addstr instead
             screen.addstr(0, 0, 'right')
             sel_id = get_id(-1)
+            lx.position_mode(get_id(0))
             lx.wiggle(sel_id)
         elif char == curses.KEY_LEFT:
             screen.addstr(0, 0, 'left ')       
             sel_id = get_id(+1)
+            lx.position_mode(get_id(0))
             lx.wiggle(sel_id)
         elif char == curses.KEY_UP:
             up_counter += 1

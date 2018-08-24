@@ -3,6 +3,7 @@ from serial import Serial
 import json
 import signal
 from shutil import copyfile
+from array import array
 
 
 dictErrors = {  1 : "Input Voltage",
@@ -95,6 +96,28 @@ class LX_16a():
         outData += chr(checksum)
         self.Serial_Con.write(outData)
         sleep(TX_DELAY_TIME)
+
+
+    def wheel_mode(self, id, speed):
+        p1_mode = 1 # this is wheel mode, 0 is position control mode
+        p2_null = 0 # second param is null for some reason
+        p3_speed_lo = speed & 0xff
+        p4_speed_hi = speed >> 8
+
+        # template for constructing the signed int bytes.
+        a = array("h")
+
+        self.send_command(id, SERVO_OR_MOTOR_MODE_WRITE, [p1_mode, p2_null, p3_speed_lo, p4_speed_hi])
+
+    def position_mode(self, id):
+        p1_mode = 0 # this is wheel mode, 0 is position control mode
+        p2_null = 0 # second param is null for some reason
+        p3_speed_lo = 0
+        p4_speed_hi = 0
+        self.send_command(id, SERVO_OR_MOTOR_MODE_WRITE, [p1_mode, p2_null, p3_speed_lo, p4_speed_hi])
+        
+    def torque_enable(self, id, enable):
+        self.send_command(id, SERVO_LOAD_OR_UNLOAD_WRITE, [enable])
 
 
     def read_pos(self, id):
