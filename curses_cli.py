@@ -61,7 +61,7 @@ def command_effort(id, effort):
 def read_pos():
     try:
         screen.addstr(1, 0, str(lx.read_pos(cur_id)))
-        threading.Timer(0.4, read_pos).start()
+        threading.Timer(1, read_pos).start()
     except Exception as e:
         print(e)
 
@@ -71,7 +71,6 @@ def read_pos():
 try:
     screen.addstr(0, 0, 'Hello Larry')
     while True:
-        screen.addstr(1, 0, str(lx.read_pos(get_id(0))))
         char = screen.getch()
         if char == ord('q'):
             break
@@ -80,13 +79,13 @@ try:
         elif char == ord('j'):
             efforts[id_idx] -= EFFORT_INCREMENT
             efforts[id_idx] = lx.limit_bounds(efforts[id_idx])
-            # screen.clear()
+            screen.clear()
             screen.addstr(0, 0, "DECREMENT EFFORT: " + str(cur_id) + " :: " + str(efforts[id_idx]))
             command_effort(cur_id, efforts[id_idx])
         elif char == ord('k'):
             efforts[id_idx] += EFFORT_INCREMENT
             efforts[id_idx] = lx.limit_bounds(efforts[id_idx])
-            # screen.clear()
+            screen.clear()
             screen.addstr(0, 0, "INCREMENT EFFORT: " + str(cur_id) + " :: " + str(efforts[id_idx]))
             command_effort(cur_id, efforts[id_idx])
         elif char == ord('h'):
