@@ -56,6 +56,9 @@ TX_DELAY_TIME = 0.001
 
 class LX_16a():
 
+    UPPER_BOUND = 999
+    LOWER_BOUND = -UPPER_BOUND
+
     Serial_Con = None
     registered_ids = {}
     non_volatile_id_counter = None # this variable will hold the next *available* id for assignment
@@ -165,6 +168,14 @@ class LX_16a():
 
     def write_id(self, new_id, id=1):
         self.send_command(id, SERVO_ID_WRITE, [new_id])
+
+    def limit_bounds(self, cmd):
+        if cmd >= self.UPPER_BOUND:
+            return self.UPPER_BOUND
+        elif cmd <= self.LOWER_BOUND:
+            return self.LOWER_BOUND
+        else:
+            return cmd
 
     def ping_id(self, id=None):
         if id:
