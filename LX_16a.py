@@ -5,6 +5,7 @@ import signal
 from shutil import copyfile
 from array import array
 
+import pickle
 
 dictErrors = {  1 : "Input Voltage",
                 2 : "Angle Limit",
@@ -63,6 +64,8 @@ class LX_16a():
 
     ids = range(min_id, max_id + 1)
 
+    spool_direction = {}
+
     id_idx = 0
     cur_id = 0
 
@@ -87,6 +90,23 @@ class LX_16a():
         with open('.id_counter', 'r') as f:
             self.non_volatile_id_counter = json.load(f)
         print(self.non_volatile_id_counter)
+
+        # section gets the polarities we consider positive on the bus.
+        print("loading non_volatile polarities")
+        filename = "polarities"
+        try:
+            with open(filename,'r') as fileObject:
+                # this writes the object a to the
+                # file named 'testfile'
+                self.spool_direction = pickle.load(fileObject)   
+        except:
+            print("polarities probably doesn't exist yet")
+        for id in self.ids:
+            if not id in self.spool_direction:
+                print("making new initialization for spool")
+                self.spool_direction[id] = 0
+        print(self.spool_direction)
+
 
     def next_id(self, rotate):
         new_idx = self.id_idx + rotate
@@ -124,17 +144,34 @@ class LX_16a():
         self.Serial_Con.write(outData)
         sleep(TX_DELAY_TIME)
 
+    def set_polarity(self, id, polarity):
+        self.spool_direction[id] = polarity
 
-    def wheel_mode(self, id, speed):
+        filename = "polarities"
+        with open(filename,'wb') as fileObject:
+            # this writes the object a to the
+            # file named 'testfile'
+            pickle.dump(self.spool_direction,fileObject)   
+        print("CURRENT:")
+        print(self.spool_direction)
+
+
+    # same as write effort below except only accepts values 0 - 999 and only lets spools exist in tension
+    def write_effort_spool(self, id, effort):
+        assert(effort >= 0)
+        effort *= self.spool_direction[id] # a 1 if spool rotation should be counter clockwise a -1 if should be clockwise
+        self.write_effort(id, effort)
+
+    def write_effort(self, id, effort):
         p1_mode = 1 # this is wheel mode, 0 is position control mode
         p2_null = 0 # second param is null for some reason
-        p3_speed_lo = speed & 0xff
-        p4_speed_hi = speed >> 8
+        p3_effort_lo = effort & 0xff
+        p4_effort_hi = effort >> 8
 
         # template for constructing the signed int bytes.
         a = array("h")
 
-        self.send_command(id, SERVO_OR_MOTOR_MODE_WRITE, [p1_mode, p2_null, p3_speed_lo, p4_speed_hi])
+        self.send_command(id, SERVO_OR_MOTOR_MODE_WRITE, [p1_mode, p2_null, p3_effort_lo, p4_effort_hi])
 
     def position_mode(self, id):
         p1_mode = 0 # this is wheel mode, 0 is position control mode

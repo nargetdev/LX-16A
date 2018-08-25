@@ -37,7 +37,7 @@ def get_id(rotate):
         new_idx = len(ids) - 1
     id_idx = new_idx
     screen.clear()
-    stringprint = "SELECTED ID: " + str(ids[id_idx])
+    stringprint = "SELECTED ID: " + str(ids[id_idx]) + " polarity: " + str(lx.spool_direction[ids[id_idx]])
     screen.addstr(0, 0, stringprint)
     # print("id: " + str(ids[id_idx]) + "idx: " + str(id_idx))
     cur_id = ids[id_idx]
@@ -54,9 +54,9 @@ EFFORT_INCREMENT = 0x1f
 
 def command_effort(id, effort):
     if effort >= 0:
-        lx.wheel_mode(cur_id, effort)
+        lx.write_effort(cur_id, effort)
     elif effort < 0:
-        lx.wheel_mode(cur_id, 0xffff + effort)
+        lx.write_effort(cur_id, 0xffff + effort)
 
 lock = threading.RLock()
 def read_pos():
@@ -78,6 +78,11 @@ try:
             break
         if char == ord('r'):
             screen.addstr(0, 0, str(lx.read_pos(get_id(0))))
+        elif char == ord('p'): # direction clockwise positive
+            lx.set_polarity(cur_id, 1)
+        elif char == ord('n'): # direction clockwise positive
+            lx.set_polarity(cur_id, -1)
+
         elif char == ord('j'):
             efforts[id_idx] -= EFFORT_INCREMENT
             efforts[id_idx] = lx.limit_bounds(efforts[id_idx])

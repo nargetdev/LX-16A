@@ -20,7 +20,8 @@ while True:
         for i, intval in enumerate(unpack('12h', message)):
             cmd_id = lx.get_id(i)
             print(cmd_id, intval)
-            lx.write_position(cmd_id, 50, intval)
+            # lx.write_position(cmd_id, 50, intval)
+            lx.write_effort_spool(cmd_id, intval)
     except Exception as e:
         print("fuck", e)
     # message = message.upper()
