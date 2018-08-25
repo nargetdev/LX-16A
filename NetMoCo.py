@@ -12,14 +12,14 @@ server_socket.bind(('', 2345))
 
 lx.ping_scan()
 
-print(unpack('<hh', '\xfe\xff\x01\x00'))
+print("Expecting 12 motors worth of half words.")
 while True:
     rand = random.randint(0, 10)
     message, address = server_socket.recvfrom(1024)
-    # print(message.encode('hex'))
     try:
-        for i, intval in enumerate(unpack('6h', message)):
+        for i, intval in enumerate(unpack('12h', message)):
             cmd_id = lx.get_id(i)
+            print(cmd_id, intval)
             lx.write_position(cmd_id, 50, intval)
     except Exception as e:
         print("fuck", e)
