@@ -1,0 +1,28 @@
+import random
+import socket
+
+from struct import *
+
+from LX_16a import LX_16a
+
+lx = LX_16a() # the lx-16a bus
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind(('', 2345))
+
+lx.ping_scan()
+
+print(unpack('<hh', '\xfe\xff\x01\x00'))
+while True:
+    rand = random.randint(0, 10)
+    message, address = server_socket.recvfrom(1024)
+    # print(message.encode('hex'))
+    try:
+        for i, intval in enumerate(unpack('6h', message)):
+            cmd_id = lx.get_id(i)
+            lx.write_position(cmd_id, 50, intval)
+    except Exception as e:
+        print("fuck", e)
+    # message = message.upper()
+    # if rand >= 4:
+    #     server_socket.sendto(message, address)
