@@ -56,6 +56,17 @@ TX_DELAY_TIME = 0.001
 
 class LX_16a():
 
+    min_id = 2
+    max_id = 15
+
+    sel_id = min_id
+
+    ids = range(min_id, max_id + 1)
+
+    id_idx = 0
+    cur_id = 0
+
+
     UPPER_BOUND = 999
     LOWER_BOUND = -UPPER_BOUND
 
@@ -77,6 +88,19 @@ class LX_16a():
             self.non_volatile_id_counter = json.load(f)
         print(self.non_volatile_id_counter)
 
+    def next_id(self, rotate):
+        new_idx = self.id_idx + rotate
+        if new_idx >= len(self.ids):
+            new_idx = 0
+        elif new_idx <= -1:
+            new_idx = len(self.ids) - 1
+        id_idx = new_idx
+        # print("id: " + str(ids[id_idx]) + "idx: " + str(id_idx))
+        self.cur_id = self.ids[id_idx]
+        return self.ids[id_idx]
+
+    def get_id(self, id_idx):
+        return self.ids[id_idx]
 
     def checksum(self, id, cmd, params):
         LENGTH = cmd[1]

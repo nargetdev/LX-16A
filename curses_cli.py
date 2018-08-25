@@ -58,20 +58,22 @@ def command_effort(id, effort):
     elif effort < 0:
         lx.wheel_mode(cur_id, 0xffff + effort)
 
+lock = threading.RLock()
 def read_pos():
-    try:
+    while True:
+        lock.acquire()
         screen.addstr(1, 0, str(lx.read_pos(cur_id)))
-        threading.Timer(1, read_pos).start()
-    except Exception as e:
-        print(e)
+        lock.release()
+        sleep(0.2)
 
-# read_pos_thread = threading.Thread(target=read_pos)
+# read_pos_thread = threading.Thread(target=read_pos)   # for some reason blocks
 # read_pos_thread.start()
 
 try:
     screen.addstr(0, 0, 'Hello Larry')
     while True:
         char = screen.getch()
+        lock.acquire()
         if char == ord('q'):
             break
         if char == ord('r'):
@@ -116,6 +118,7 @@ try:
         elif char == curses.KEY_DOWN:
             lx.decrement_position(get_id(0))
             screen.addstr(0, 0, 'down ')
+        lock.release()
 
 finally:
     # shut down cleanly

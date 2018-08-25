@@ -60,4 +60,4 @@ while(1):
         print(j)
         for i in xrange(2, 15):
             lx.write_position(i, 100, j*100)
-            sleep(sleepytime)
+        sleep(sleepytime)
