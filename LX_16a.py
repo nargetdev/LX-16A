@@ -5,6 +5,7 @@ import signal
 from shutil import copyfile
 from array import array
 
+
 import pickle
 
 dictErrors = {  1 : "Input Voltage",
@@ -46,7 +47,7 @@ SERVO_LED_ERROR_WRITE=[35, 4]
 SERVO_LED_ERROR_READ=[36, 3]
 
 
-SCAN_RANGE=16
+SCAN_RANGE=32
 
 
 
@@ -57,12 +58,38 @@ TX_DELAY_TIME = 0.001
 
 class LX_16a():
 
-    min_id = 2
-    max_id = 15
+    # min_id = 2
+    # max_id = 25
 
-    sel_id = min_id
+    # sel_id = min_id
 
-    ids = range(min_id, max_id + 1)
+    # ids = range(min_id, max_id + 1)
+    ids = [
+        5,  # LeftHipAbduction
+        7,  # RightHipAdduction
+        11, # LeftHipFlexion
+        6,  # RightHipFlexion
+        12, # LeftHipAdduction
+        14, # RightHipAbduction
+        15, # LeftKneeFlexion
+        2, # RightKneeFlexion
+        3,
+        4,
+        8,
+        9,
+        13,
+        10,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+    ]
 
     spool_direction = {}
 
@@ -87,9 +114,19 @@ class LX_16a():
             print("failed to connect")
         print("initialized")
         print("loading non_volatile_id_counter")
-        with open('.id_counter', 'r') as f:
-            self.non_volatile_id_counter = json.load(f)
-        print(self.non_volatile_id_counter)
+
+
+        print("finished dumping test file")
+
+        file_Name = "testfile"
+        with open(file_Name,'r') as fileObject:
+            # load the object from the file into var b
+            self.non_volatile_id_counter = pickle.load(fileObject)  
+
+
+        # with open('.id_counter', 'r') as f:
+        #     self.non_volatile_id_counter = json.load(f)
+        print( "NONVOL: " , self.non_volatile_id_counter)
 
         # section gets the polarities we consider positive on the bus.
         print("loading non_volatile polarities")
@@ -159,7 +196,10 @@ class LX_16a():
     # same as write effort below except only accepts values 0 - 999 and only lets spools exist in tension
     def write_effort_spool(self, id, effort):
         assert(effort >= 0)
-        effort *= self.spool_direction[id] # a 1 if spool rotation should be counter clockwise a -1 if should be clockwise
+        # effort *= self.spool_direction[id] # a 1 if spool rotation should be counter clockwise a -1 if should be clockwise
+        if self.spool_direction[id] == -1: # a 1 if spool rotation should be counter clockwise a -1 if should be clockwise
+            effort = 0xffff - effort
+
         self.write_effort(id, effort)
 
     def write_effort(self, id, effort):
@@ -168,8 +208,10 @@ class LX_16a():
         p3_effort_lo = effort & 0xff
         p4_effort_hi = effort >> 8
 
-        # template for constructing the signed int bytes.
-        a = array("h")
+        if p3_effort_lo > 0xff:
+            print("lo out of range")
+        if p4_effort_hi > 0xff:
+            print("hi out of range")
 
         self.send_command(id, SERVO_OR_MOTOR_MODE_WRITE, [p1_mode, p2_null, p3_effort_lo, p4_effort_hi])
 
@@ -267,25 +309,6 @@ class LX_16a():
             count+=1
             # sleep(0.1)
 
-    def check_and_allocate(self):
-        print("NEXT QUEUED: " + str(self.non_volatile_id_counter))
-        print("checking 1")
-        if self.ping_id(1) == 1:
-            print("found 1 needs reallocate")
-            print("allocating id: " + str(self.non_volatile_id_counter))
-            self.write_id(self.non_volatile_id_counter)
-            self.non_volatile_id_counter += 1
-            print("writing next available id to '.id_counter': " + str(self.non_volatile_id_counter))
-            with open('.id_counter.tmp', 'w+') as f:
-                json.dumps(str(self.non_volatile_id_counter), f)
-
-            copyfile('.id_counter.tmp', '.id_counter')
-        else:
-            print("one not found, doing nothing")
-
-        print("ids on the bus now: ")
-        self.ping_scan()
-
     def ping_scan(self):
         for i in range(1, SCAN_RANGE):
             print("i: " + str(i) + " Present? " + str(self.ping_id(i) ) )
@@ -315,4 +338,30 @@ class LX_16a():
         self.write_position(id, 100, cmd_pos)
                 
 
+    def check_and_allocate(self):
+        print("NEXT QUEUED: " + str(self.non_volatile_id_counter))
+        print("checking 1")
 
+        file_Name = "testfile"
+        if self.ping_id(1) == 1:
+            print("found 1 needs reallocate")
+            print("allocating id: " + str(self.non_volatile_id_counter))
+            self.write_id(self.non_volatile_id_counter)
+            self.non_volatile_id_counter += 1
+            print("writing next available id to '.id_counter': " + str(self.non_volatile_id_counter))
+
+            with open(file_Name,'wb') as fileObject:
+                # this writes the object a to the
+                # file named 'testfile'
+                pickle.dump(self.non_volatile_id_counter, fileObject)   
+
+            with open('.id_counter.tmp', 'w+') as f:
+                json.dumps(str(self.non_volatile_id_counter), f)
+        
+
+            copyfile('.id_counter.tmp', '.id_counter')
+        else:
+            print("one not found, doing nothing")
+
+        print("ids on the bus now: ")
+        self.ping_scan()

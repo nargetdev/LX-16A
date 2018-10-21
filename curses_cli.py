@@ -19,7 +19,7 @@ curses.cbreak()
 screen.keypad(True)
 
 min_id = 2
-max_id = 15
+max_id = 25
 
 sel_id = min_id
 

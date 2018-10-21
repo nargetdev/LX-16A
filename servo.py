@@ -9,8 +9,8 @@ import threading
 
 import json
 
-SCAN_RANGE=16
-
+SCAN_RANGE=32
+DRIVE_RANGE=32
 
 
 def watch_ids():
@@ -21,11 +21,12 @@ def watch_ids():
         threading.current_thread().name)
     )
     print("checking for one")
-    try:
-        lx.check_and_allocate()
-    except:
-        "something wrong"
-    threading.Timer(3, watch_ids).start()
+    lx.check_and_allocate()
+    # try:
+    #     lx.check_and_allocate()
+    # except:
+    #     "something wrong"
+    # threading.Timer(3, watch_ids).start()
 
 
 
@@ -46,18 +47,17 @@ lx = LX_16a() # the lx-16a bus
 
 lx.ping_scan()
 
+
 LX_ID0 = 1
 sleepytime=0.1
 
-
-
-
-
 while(1):
-    print("write positions")
+    # watch_ids()
+    # sleep(3)
+#     print("write positions")
 
-    for j in xrange(10):
+    for j in xrange(2,25):
         print(j)
-        for i in xrange(2, 15):
+        for i in xrange(2, DRIVE_RANGE):
             lx.write_position(i, 100, j*100)
-        sleep(sleepytime)
+            sleep(sleepytime)
