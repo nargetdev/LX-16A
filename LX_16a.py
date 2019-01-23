@@ -5,6 +5,8 @@ import signal
 from shutil import copyfile
 from array import array
 
+import os
+
 
 import pickle
 
@@ -49,6 +51,7 @@ SERVO_LED_ERROR_READ=[36, 3]
 
 SCAN_RANGE=32
 
+SERIAL_DEVICE_STRING = "/dev/tty.usbserial-1410"
 
 
 AX_START=0x55
@@ -107,7 +110,7 @@ class LX_16a():
     def __init__(self):
         print("trying to connect")
         try:
-            self.Serial_Con = Serial("/dev/ttyUSB0", baudrate=115200, timeout=0.001)
+            self.Serial_Con = Serial(SERIAL_DEVICE_STRING, baudrate=115200, timeout=0.001)
             self.Serial_Con.setDTR(1)
         except Exception as e:
             print(e)
@@ -119,9 +122,17 @@ class LX_16a():
         print("finished dumping test file")
 
         file_Name = "testfile"
-        with open(file_Name,'r') as fileObject:
-            # load the object from the file into var b
-            self.non_volatile_id_counter = pickle.load(fileObject)  
+        if os.path.exists(file_Name):
+            with open(file_Name,'r') as fileObject:
+                # load the object from the file into var b
+                self.non_volatile_id_counter = pickle.load(fileObject)  
+        else:
+            with open(file_Name,'wb') as fileObject:
+                # initialize the non_volatile_id_counter to 27
+                print("INITIALIZING non_volatile_id_counter to 27")
+                self.non_volatile_id_counter = 27
+                pickle.dump(self.non_volatile_id_counter, fileObject)   
+
 
 
         # with open('.id_counter', 'r') as f:
