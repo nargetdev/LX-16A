@@ -329,9 +329,11 @@ class LX_16a():
         sleepytime = .1
         for i in range(1, WIGGLE_NUM):
             # print("wiggling id " + str(id))
-            self.write_position(id, 50, 0)
+            scale_factor = 0.8
+            cur_pos = self.read_pos(id)
+            self.write_position(id, 50, cur_pos*scale_factor)
             sleep(sleepytime)
-            self.write_position(id, 50, 100)
+            self.write_position(id, 50, cur_pos)
             sleep(sleepytime)
                 
     def increment_position(self, id):
