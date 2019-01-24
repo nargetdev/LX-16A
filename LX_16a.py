@@ -331,7 +331,7 @@ class LX_16a():
             # print("wiggling id " + str(id))
             scale_factor = 0.8
             cur_pos = self.read_pos(id)
-            self.write_position(id, 50, cur_pos*scale_factor)
+            self.write_position(id, 50, (int)(cur_pos*scale_factor))
             sleep(sleepytime)
             self.write_position(id, 50, cur_pos)
             sleep(sleepytime)
